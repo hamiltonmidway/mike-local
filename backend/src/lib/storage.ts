@@ -1,40 +1,32 @@
 /**
- * Cloudflare R2 storage utilities for Mike document management.
- * R2 is S3-compatible — uses @aws-sdk/client-s3.
+ * Local filesystem storage for Mike document management.
  *
- * Required env vars:
- *   R2_ENDPOINT_URL     — https://<account-id>.r2.cloudflarestorage.com
- *   R2_ACCESS_KEY_ID    — R2 API token (Access Key ID)
- *   R2_SECRET_ACCESS_KEY — R2 API token (Secret Access Key)
- *   R2_BUCKET_NAME      — bucket name (default: "mike")
+ * Files are stored under LOCAL_STORAGE_DIR, or backend/data/storage by default.
+ * The storage key helpers intentionally keep the old object-key shape so the
+ * rest of the app can keep treating paths as stable document references.
  */
 
-import {
-  S3Client,
-  PutObjectCommand,
-  GetObjectCommand,
-  DeleteObjectCommand,
-} from "@aws-sdk/client-s3";
-import { getSignedUrl as awsGetSignedUrl } from "@aws-sdk/s3-request-presigner";
+import fs from "fs/promises";
+import path from "path";
+import { buildDownloadUrl } from "./downloadTokens";
 
-function getClient(): S3Client {
-  return new S3Client({
-    region: "auto",
-    endpoint: process.env.R2_ENDPOINT_URL!,
-    credentials: {
-      accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-      secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
-    },
-  });
+function storageRoot(): string {
+  return path.resolve(
+    process.env.LOCAL_STORAGE_DIR ?? path.join(process.cwd(), "data", "storage"),
+  );
 }
 
-const BUCKET = process.env.R2_BUCKET_NAME ?? "mike";
+function resolveStoragePath(key: string): string {
+  const normalized = path.normalize(key).replace(/^(\.\.(\/|\\|$))+/, "");
+  const root = storageRoot();
+  const fullPath = path.resolve(root, normalized);
+  if (fullPath !== root && !fullPath.startsWith(root + path.sep)) {
+    throw new Error(`Invalid storage key: ${key}`);
+  }
+  return fullPath;
+}
 
-export const storageEnabled = Boolean(
-  process.env.R2_ENDPOINT_URL &&
-  process.env.R2_ACCESS_KEY_ID &&
-  process.env.R2_SECRET_ACCESS_KEY,
-);
+export const storageEnabled = true;
 
 // ---------------------------------------------------------------------------
 // Upload
@@ -43,17 +35,11 @@ export const storageEnabled = Boolean(
 export async function uploadFile(
   key: string,
   content: ArrayBuffer,
-  contentType: string,
+  _contentType: string,
 ): Promise<void> {
-  const client = getClient();
-  await client.send(
-    new PutObjectCommand({
-      Bucket: BUCKET,
-      Key: key,
-      Body: Buffer.from(content),
-      ContentType: contentType,
-    }),
-  );
+  const fullPath = resolveStoragePath(key);
+  await fs.mkdir(path.dirname(fullPath), { recursive: true });
+  await fs.writeFile(fullPath, Buffer.from(content));
 }
 
 // ---------------------------------------------------------------------------
@@ -61,15 +47,12 @@ export async function uploadFile(
 // ---------------------------------------------------------------------------
 
 export async function downloadFile(key: string): Promise<ArrayBuffer | null> {
-  if (!storageEnabled) return null;
   try {
-    const client = getClient();
-    const response = await client.send(
-      new GetObjectCommand({ Bucket: BUCKET, Key: key }),
-    );
-    if (!response.Body) return null;
-    const bytes = await response.Body.transformToByteArray();
-    return bytes.buffer as ArrayBuffer;
+    const bytes = await fs.readFile(resolveStoragePath(key));
+    return bytes.buffer.slice(
+      bytes.byteOffset,
+      bytes.byteOffset + bytes.byteLength,
+    ) as ArrayBuffer;
   } catch {
     return null;
   }
@@ -80,39 +63,27 @@ export async function downloadFile(key: string): Promise<ArrayBuffer | null> {
 // ---------------------------------------------------------------------------
 
 export async function deleteFile(key: string): Promise<void> {
-  if (!storageEnabled) return;
-  const client = getClient();
-  await client.send(new DeleteObjectCommand({ Bucket: BUCKET, Key: key }));
+  try {
+    await fs.unlink(resolveStoragePath(key));
+  } catch {
+    // Missing local files are treated like already-deleted object keys.
+  }
 }
 
 // ---------------------------------------------------------------------------
-// Signed URL (pre-signed for temporary direct access)
+// Download URL
 // ---------------------------------------------------------------------------
 
 export async function getSignedUrl(
   key: string,
-  expiresIn = 3600,
+  _expiresIn = 3600,
   downloadFilename?: string,
 ): Promise<string | null> {
-  if (!storageEnabled) return null;
-  try {
-    const client = getClient();
-    // Override the response Content-Disposition so the browser uses this
-    // filename on download, instead of the last path segment of the R2 key
-    // (which includes the document UUID). The `download` attribute on <a>
-    // is ignored for cross-origin URLs, so we have to set it server-side.
-    const responseContentDisposition = downloadFilename
-      ? buildContentDisposition("attachment", downloadFilename)
-      : undefined;
-    const command = new GetObjectCommand({
-      Bucket: BUCKET,
-      Key: key,
-      ResponseContentDisposition: responseContentDisposition,
-    });
-    return await awsGetSignedUrl(client, command, { expiresIn });
-  } catch {
-    return null;
-  }
+  const base =
+    process.env.PUBLIC_API_BASE_URL ??
+    process.env.API_BASE_URL ??
+    `http://localhost:${process.env.PORT ?? 3001}`;
+  return `${base}${buildDownloadUrl(key, downloadFilename ?? path.basename(key))}`;
 }
 
 export function normalizeDownloadFilename(name: string): string {

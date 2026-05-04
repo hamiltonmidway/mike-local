@@ -14,18 +14,16 @@ export function isModelAvailable(
 ): boolean {
     const provider = getModelProvider(modelId);
     if (!provider) return false;
-    return provider === "claude"
-        ? !!apiKeys.claudeApiKey?.trim()
-        : !!apiKeys.geminiApiKey?.trim();
+    if (provider === "claude") return true;
+    return !!apiKeys.geminiApiKey?.trim();
 }
 
 export function isProviderAvailable(
     provider: ModelProvider,
     apiKeys: { claudeApiKey: string | null; geminiApiKey: string | null },
 ): boolean {
-    return provider === "claude"
-        ? !!apiKeys.claudeApiKey?.trim()
-        : !!apiKeys.geminiApiKey?.trim();
+    if (provider === "claude") return true;
+    return !!apiKeys.geminiApiKey?.trim();
 }
 
 export function providerLabel(provider: ModelProvider): string {

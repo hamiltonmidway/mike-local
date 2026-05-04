@@ -1,14 +1,9 @@
 import { Router } from "express";
-import { createClient } from "@supabase/supabase-js";
 import { requireAuth } from "../middleware/auth";
 import { createServerSupabase } from "../lib/supabase";
 
 function getAdminClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
-    process.env.SUPABASE_SECRET_KEY ?? "",
-    { auth: { autoRefreshToken: false, persistSession: false } },
-  );
+  return createServerSupabase();
 }
 
 export const workflowsRouter = Router();

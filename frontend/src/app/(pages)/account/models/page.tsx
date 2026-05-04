@@ -39,7 +39,7 @@ export default function ModelsAndApiKeysPage() {
                         <TabularModelDropdown
                             value={
                                 profile?.tabularModel ??
-                                "gemini-3-flash-preview"
+                                "claude-sonnet-4-6"
                             }
                             apiKeys={{
                                 claudeApiKey: profile?.claudeApiKey ?? null,
@@ -66,9 +66,8 @@ export default function ModelsAndApiKeysPage() {
                     own instance of Mike.
                 </p>
                 <p className="text-xs text-gray-400 mb-4 max-w-xl">
-                    Title generation automatically routes to the cheapest model
-                    of whichever provider you&rsquo;ve configured (Gemini Flash
-                    Lite if a Gemini key is set, otherwise Claude Haiku).
+                    Title generation uses Claude Haiku by default. Gemini is
+                    still available if you add a Google key.
                 </p>
                 <div className="space-y-4 max-w-xl">
                     <ApiKeyField

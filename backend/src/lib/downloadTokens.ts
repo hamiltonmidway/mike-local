@@ -3,16 +3,16 @@ import crypto from "crypto";
 /**
  * HMAC-signed, non-expiring download tokens.
  *
- * The token encodes the R2 storage path + filename; the backend route
+ * The token encodes the local storage path + filename; the backend route
  * `/download/:token` validates the signature and streams the file. This
  * gives persistent links safe to store in chat history without signed-URL
- * expiry or R2 CORS headaches.
+ * expiry or browser file-path exposure.
  */
 
 function getSecret(): string {
     return (
         process.env.DOWNLOAD_SIGNING_SECRET ??
-        process.env.SUPABASE_SECRET_KEY ??
+        process.env.LOCAL_SIGNING_SECRET ??
         "dev-secret"
     );
 }
