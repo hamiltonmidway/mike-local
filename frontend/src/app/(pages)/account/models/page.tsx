@@ -104,7 +104,8 @@ function TabularModelDropdown({
     const [isOpen, setIsOpen] = useState(false);
     const selected = MODELS.find((m) => m.id === value);
     const selectedAvailable = isModelAvailable(value, apiKeys);
-    const groups: ("Anthropic" | "Google")[] = ["Anthropic", "Google"];
+    // Add "Ollama" to the allowed groups array
+    const groups: ("Anthropic" | "Google" | "Ollama")[] = ["Anthropic", "Google", "Ollama"];
 
     return (
         <DropdownMenu onOpenChange={setIsOpen}>

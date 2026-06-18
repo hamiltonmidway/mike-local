@@ -1,5 +1,7 @@
 import { streamClaude, completeClaudeText } from "./claude";
 import { streamGemini, completeGeminiText } from "./gemini";
+// 1. Import our new Ollama functions (we will create this file next!)
+import { streamOllama, completeOllamaText } from "./ollama";
 import { providerForModel } from "./models";
 import type { StreamChatParams, StreamChatResult, UserApiKeys } from "./types";
 
@@ -11,6 +13,8 @@ export async function streamChatWithTools(
 ): Promise<StreamChatResult> {
     const provider = providerForModel(params.model);
     if (provider === "claude") return streamClaude(params);
+    // 2. Route Ollama requests
+    if (provider === "ollama") return streamOllama(params); 
     return streamGemini(params);
 }
 
@@ -23,5 +27,7 @@ export async function completeText(params: {
 }): Promise<string> {
     const provider = providerForModel(params.model);
     if (provider === "claude") return completeClaudeText(params);
+    // 3. Route Ollama requests
+    if (provider === "ollama") return completeOllamaText(params); 
     return completeGeminiText(params);
 }

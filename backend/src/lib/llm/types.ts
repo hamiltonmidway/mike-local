@@ -2,7 +2,8 @@
 // Callers always speak OpenAI-style tools + { role, content } messages; each
 // provider translates internally.
 
-export type Provider = "claude" | "gemini";
+// NOTE ---> Add "ollama" to the allowed backend provider types
+export type Provider = "claude" | "gemini" | "ollama";
 
 export type OpenAIToolSchema = {
     type: "function";

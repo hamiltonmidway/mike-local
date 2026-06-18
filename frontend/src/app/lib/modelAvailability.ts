@@ -1,11 +1,15 @@
 import { MODELS, type ModelOption } from "../components/assistant/ModelToggle";
 
-export type ModelProvider = "claude" | "gemini";
+// 1. Add "ollama" to the allowed provider types
+export type ModelProvider = "claude" | "gemini" | "ollama";
 
 export function getModelProvider(modelId: string): ModelProvider | null {
     const model = MODELS.find((m) => m.id === modelId);
     if (!model) return null;
-    return model.group === "Anthropic" ? "claude" : "gemini";
+    // Explicitly check for each group now that we have three
+    if (model.group === "Anthropic") return "claude";
+    if (model.group === "Google") return "gemini";
+    return "ollama";
 }
 
 export function isModelAvailable(
@@ -14,7 +18,8 @@ export function isModelAvailable(
 ): boolean {
     const provider = getModelProvider(modelId);
     if (!provider) return false;
-    if (provider === "claude") return true;
+    // Ollama is local, so it is always available without an external API key
+    if (provider === "claude" || provider === "ollama") return true;
     return !!apiKeys.geminiApiKey?.trim();
 }
 
@@ -22,16 +27,20 @@ export function isProviderAvailable(
     provider: ModelProvider,
     apiKeys: { claudeApiKey: string | null; geminiApiKey: string | null },
 ): boolean {
-    if (provider === "claude") return true;
+    if (provider === "claude" || provider === "ollama") return true;
     return !!apiKeys.geminiApiKey?.trim();
 }
 
 export function providerLabel(provider: ModelProvider): string {
-    return provider === "claude" ? "Anthropic (Claude)" : "Google (Gemini)";
+    if (provider === "claude") return "Anthropic (Claude)";
+    if (provider === "gemini") return "Google (Gemini)";
+    return "Ollama (Local)";
 }
 
 export function modelGroupToProvider(
     group: ModelOption["group"],
 ): ModelProvider {
-    return group === "Anthropic" ? "claude" : "gemini";
+    if (group === "Anthropic") return "claude";
+    if (group === "Google") return "gemini";
+    return "ollama";
 }
