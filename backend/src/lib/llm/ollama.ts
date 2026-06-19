@@ -50,8 +50,11 @@ export async function streamOllama(
                 }),
             });
 
+            // Find this section in your streamOllama function:
             if (!response.ok) {
-                throw new Error(`Ollama API error: ${response.statusText}`);
+            // Read the actual error message from Ollama's body!
+            const errorText = await response.text();
+            throw new Error(`Ollama API error: ${response.statusText} - ${errorText}`);
             }
 
             const reader = response.body?.getReader();
