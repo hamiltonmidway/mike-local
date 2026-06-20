@@ -132,6 +132,7 @@ GENERAL GUIDANCE:
 - When no documents are provided, answer based on your legal knowledge
 - Do not fabricate document content
 - Do not use emojis in your responses.
+- CRITICAL UX RULE: If the user asks about a specific clause, provision, or legal topic (e.g., indemnity, warranties, termination, governing law) that is entirely absent from the document, you MUST explicitly state that the document does not contain that provision and note that the specific keywords do not appear. Never substitute a missing provision with a generic summary of other contract sections.
 `;
 
 export const PROJECT_EXTRA_TOOLS = [
@@ -2314,9 +2315,18 @@ export async function runLLMStream(params: {
     projectId?: string | null;
 }): Promise<{ fullText: string; events: AssistantEvent[] }> {
     const { apiMessages, docStore, docIndex, userId, db, write, extraTools, workflowStore, tabularStore, buildCitations, model, apiKeys, projectId } = params;
-    const activeTools = extraTools?.length
+    let activeTools = extraTools?.length
         ? [...TOOLS, ...WORKFLOW_TOOLS, ...extraTools]
         : [...TOOLS, ...WORKFLOW_TOOLS];
+
+// Guardrail: If running a local model, restrict the toolbelt to read-only tools 
+// so it doesn't mistakenly try to edit files when a clause is missing.
+const isLocalModel = model.startsWith("llama") || model.startsWith("gemma") || model.includes("ollama");
+if (isLocalModel) {
+    activeTools = activeTools.filter(t => 
+        t.function.name === "read_document" || t.function.name === "find_in_document"
+    );
+}
 
     // Extract system prompt; pass remaining turns to the adapter as
     // plain user/assistant messages.

@@ -50,11 +50,9 @@ export async function streamOllama(
                 }),
             });
 
-            // Find this section in your streamOllama function:
             if (!response.ok) {
-            // Read the actual error message from Ollama's body!
-            const errorText = await response.text();
-            throw new Error(`Ollama API error: ${response.statusText} - ${errorText}`);
+                const errorText = await response.text();
+                throw new Error(`Ollama API error: ${response.statusText} - ${errorText}`);
             }
 
             const reader = response.body?.getReader();
@@ -108,7 +106,6 @@ export async function streamOllama(
                                 }
                                 const current = rawToolCallsMap.get(idx)!;
                                 if (tc.function?.arguments) {
-                                    // Arguments can come as objects or split string chunks
                                     if (typeof tc.function.arguments === "string") {
                                         current.argsStr += tc.function.arguments;
                                     } else {
@@ -153,7 +150,7 @@ export async function streamOllama(
                     type: "function",
                     function: {
                         name: rawCall.name,
-                        arguments: rawCall.argsStr
+                        arguments: parsedArgs
                     }
                 });
             }

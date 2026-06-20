@@ -25,6 +25,7 @@ export const MODELS: ModelOption[] = [
     { id: "gemini-3-flash-preview", label: "Gemini 3 Flash", group: "Google" },
     { id: "gemma4:latest", label: "Google Gemma 4 (Local)", group: "Ollama" },
     { id: "gemma3:4b", label: "Google Gemma 3 (4B Local)", group: "Ollama" },
+    { id: "llama3.2:3b", label: "Meta Llama 3.2 (3B Local)", group: "Ollama" },
 ];
 
 export const DEFAULT_MODEL_ID = "claude-sonnet-4-6";

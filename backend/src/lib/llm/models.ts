@@ -10,13 +10,13 @@ export const GEMINI_MAIN_MODELS = [
     "gemini-3-flash-preview",
 ] as const;
 // 1. Add our local Ollama models array
-export const OLLAMA_MAIN_MODELS = ["gemma4:latest", "gemma3:4b"] as const;
+export const OLLAMA_MAIN_MODELS = ["gemma4:latest", "gemma3:4b", "llama3.2:3b"] as const;
 
 // Mid-tier (used for tabular review) — user picks one in account settings.
 export const CLAUDE_MID_MODELS = ["claude-sonnet-4-6"] as const;
 export const GEMINI_MID_MODELS = ["gemini-3-flash-preview"] as const;
-// 2. Make Gemma available for tabular reviews too
-export const OLLAMA_MID_MODELS = ["gemma4:latest", "gemma3:4b"] as const;
+// 2. Make Gemma/Llama available for tabular reviews too
+export const OLLAMA_MID_MODELS = ["gemma4:latest", "gemma3:4b", "llama3.2:3b"] as const;
 
 // Low-tier (used for title generation, lightweight extractions) — user picks
 // one in account settings.
@@ -45,8 +45,8 @@ const ALL_MODELS = new Set<string>([
 export function providerForModel(model: string): Provider {
     if (model.startsWith("claude")) return "claude";
     if (model.startsWith("gemini")) return "gemini";
-    // 5. Route gemma/ollama to the "ollama" provider
-    if (model.startsWith("gemma") || model.includes("ollama")) return "ollama";
+    // 5. Route gemma/ollama/llama to the "ollama" provider
+    if (model.startsWith("gemma") || model.startsWith("llama") || model.includes("ollama")) return "ollama";
     throw new Error(`Unknown model id: ${model}`);
 }
 
