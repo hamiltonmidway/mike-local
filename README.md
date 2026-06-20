@@ -1,10 +1,38 @@
-# Mike (local-only fork)
+# Mike-local (the second fork of Mike)
 
-A fully local fork of [willchen96/mike](https://github.com/willchen96/mike) — all credit to Will for the original project, which is genuinely awesome.
+This is the second fork, so let me give some background information here, and fully explain how this came about.
 
-This fork swaps out the cloud dependencies (Supabase Postgres, Supabase Auth, Cloudflare R2) for local equivalents — a JSON file for state and the local filesystem for document storage. Nothing leaves your machine except calls to the LLM provider you configure.
+**THE ORIGINAL GITHUB BY WILL CHEN**
 
-**Why?** I'm a personal injury lawyer. I sometimes work with contracts, settlement docs, and client materials I'd rather not push to a third-party cloud bucket while I'm just experimenting with a tool. This version lets you kick the tires entirely on your own laptop. If you want the full multi-user / production setup, use Will's upstream repo — it's the right tool for that job.
+The original Github was MikeOSS by willchen96. (https://github.com/willchen96/mike) — All credit to Will for the original project.   What was the original project?  Former Latham & Watkins lawyer Will Chen created an open-source version of Harvey named "Mike".    If you are inclined, please check out Will's work.   There's an excellent interview with Will Chen that you can watch here:
+
+https://www.artificiallawyer.com/2026/05/04/mike-the-open-source-legal-ai-platform-will-chen-interview/
+
+The challenge with Will Chen's original version of Mike was that you needed a lot of things to use it -- Supabase Postgres, Supabase Auth, Cloudflare R2, etc -- and I did not have any of that.
+
+**THE FIRST FORK OF THE ORIGINAL GITHUB**
+
+The first fork of Mike was by Mike Brown, who goes by the Github handle "mikeOnBreeze".   His fork strips out all of the cloud dependences for local equivalents -- a JSON file for state and the local filesystem for document storage.  All credit to Mike Brown for his fork, which is here:
+
+https://github.com/mikeOnBreeze/mike-oss
+
+If you are inclined, please check out Mike Brown's work!
+
+**THE FIRST FORK OF MIKEONBREEZE'S GITHUB**
+
+So, that brings us to my fork -- what does my fork do?
+
+My fork adds some additional options in the model select tab to allow for offline, local AI to process the questions instead of cloud AI such as Claude or Google Gemini.
+
+Specifically, my fork adds three additional options, all using Ollama:
+
+(1) Google Gemma 4 (local)
+(2) Google Gemma 3: 4B (local)
+(3) Meta Llama 3.2: 3B (local)
+
+Why did I create this fork?
+
+Two reasons.  One was I wanted to run this program offline, without connecting to the internet.  Second reason was that I feel that the big cloud AI companies -- Anthropic, OpenAI, Google, and xAI -- are all going to move to token-based billing in either 2026 or 2027, and subsequently jack up the price of each token.  When that happens, people are going to want options to run AI locally.
 
 Licensed AGPL-3.0 (same as upstream).
 
