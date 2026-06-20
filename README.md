@@ -4,9 +4,13 @@ This is the second fork, so let me give some background information here, and fu
 
 **THE ORIGINAL GITHUB BY WILL CHEN**
 
-The original Github was MikeOSS by willchen96. (https://github.com/willchen96/mike) — All credit to Will for the original project.   What was the original project?  Former Latham & Watkins lawyer Will Chen created an open-source version of Harvey named "Mike".    If you are inclined, please check out Will's work.   There's an excellent interview with Will Chen that you can watch here:
+The original Github was Mike by willchen96. (https://github.com/willchen96/mike) — All credit to Will for the original project.   What was the original project?  Former Latham & Watkins lawyer Will Chen created an open-source version of Harvey named "Mike".    If you are inclined, please check out Will's work.   There's an excellent interview with Will Chen that you can watch here:
 
 https://www.artificiallawyer.com/2026/05/04/mike-the-open-source-legal-ai-platform-will-chen-interview/
+
+Additionally, if you want more background, check out Will's website for Mike here:
+
+https://mikeoss.com/
 
 The challenge with Will Chen's original version of Mike was that you needed a lot of things to use it -- Supabase Postgres, Supabase Auth, Cloudflare R2, etc -- and I did not have any of that.
 
@@ -27,7 +31,9 @@ My fork adds some additional options in the model select tab to allow for offlin
 Specifically, my fork adds three additional options, all using Ollama:
 
 (1) Google Gemma 4 (local)
+
 (2) Google Gemma 3: 4B (local)
+
 (3) Meta Llama 3.2: 3B (local)
 
 Why did I create this fork?
@@ -82,7 +88,7 @@ npm run dev --prefix frontend
 
 Open `http://localhost:3000`.
 
-## Local Data
+#### Local Data
 
 - JSON database: `backend/data/local-db.json`
 - Document bytes: `backend/data/storage/`
@@ -90,13 +96,17 @@ Open `http://localhost:3000`.
 
 No Supabase database, Supabase Auth project, or R2/S3 bucket is required.
 
-## Required Services
+#### Required Services
 
-- Anthropic API key for Claude models
-- Optional Gemini API key only if you choose Gemini models
+- Ollama (if you want to run local AI)
 - LibreOffice for DOC/DOCX to PDF conversion
 
-## Checks
+#### Optional Services
+
+- Optional Anthropic API key for Claude models (if you don't want to run local AI)
+- Optional Gemini API key for Google Gemini (if you don't want to run local AI)
+
+#### Checks
 
 ```bash
 npm run build --prefix backend
@@ -104,6 +114,6 @@ npm run build --prefix frontend
 npm run lint --prefix frontend
 ```
 
-## License
+#### License
 
 AGPL-3.0-only. See `LICENSE`.
